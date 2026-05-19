@@ -197,6 +197,15 @@ def main():
     # Botão de análise
     analisar = st.button("🚀 Analisar", type="primary", use_container_width=True)
 
+    # Recupera da sessão se já foi processado (evita reset ao usar filtros)
+    if not analisar and "df" in st.session_state:
+        _render_dashboard(
+            st.session_state["df"],
+            st.session_state["metadados"],
+            granularidade,
+        )
+        return
+
     if not analisar:
         # Tela de boas-vindas
         st.info(
@@ -238,6 +247,10 @@ def main():
             st.error(f"❌ Erro inesperado: {e}")
             logger.exception("Erro no pipeline:")
             return
+
+    # Salva na sessão para os filtros não resetarem
+    st.session_state["df"]        = df
+    st.session_state["metadados"] = metadados
 
     # ── Renderiza dashboard ───────────────────────────────────────────────────
     _render_dashboard(df, metadados, granularidade)
